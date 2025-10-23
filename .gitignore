@@ -1,0 +1,5 @@
+# CUSTOM .gitignore for SDL_DefaultTemplate
+
+binaries/
+tmp
+.vs/
