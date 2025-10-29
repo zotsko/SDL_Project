@@ -1,52 +1,31 @@
 #include <SDL3/SDL.h>
 #include <exception>
+#include "Game.h"
+
 
 int main() 
 {
-	bool _isRunning;
-	SDL_Window* _window = nullptr;
-	SDL_Renderer* _renderer = nullptr;
-
+	Game game;
 	try {
-		if (!SDL_Init(SDL_INIT_VIDEO))
-			throw SDL_GetError();
-
-		if (!SDL_CreateWindowAndRenderer("Test", 512, 512, SDL_WINDOW_RESIZABLE, &_window, &_renderer))
-			throw SDL_GetError();
-
-		SDL_SetRenderDrawColor(_renderer, 225, 0, 0, 0xFF); // 0xFF = 255 en hexadecimal
-
-		_isRunning = true;
+		game.Init();
 	}
 	catch (std::exception& e) {
-		SDL_DestroyRenderer(_renderer);
-		SDL_DestroyWindow(_window);
-		SDL_Quit();
+		game.Release();
 		return -1;
 	}
 
-	while (_isRunning)
+	while (game.IsRunning())
 	{
 		// Gestión del Input
-		SDL_Event event;
+		game.HandleEvents();
 
-		while (SDL_PollEvent(&event))
-			if (event.type == SDL_EVENT_QUIT)
-				_isRunning = false;
-
-		// Actualizar lógica (objetos, etc.)
-
+		// UPDATE - Actualizar lógica (objetos, etc.)
+		game.Update();
 
 		// Renderizar
-		SDL_RenderClear(_renderer);
-
-		// ... ( renderizar objectos )
-		SDL_RenderPresent(_renderer);
-
+		game.Render();
 	}
-	SDL_DestroyRenderer(_renderer);
-	SDL_DestroyWindow(_window);
-	SDL_Quit();
-
+	game.Release();
 	return 0;
 }
+
