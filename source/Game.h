@@ -1,12 +1,15 @@
 #pragma once
-#include "GameObject.h"
+#include "Object.h"
 
 #include <SDL3/SDL.h>
 #include <vector>
 
-class Game {
+
+class Game
+{
 public:
 	Game() = default;
+	~Game();
 
 	void Init();
 	void HandleEvents();
@@ -14,8 +17,7 @@ public:
 	void Render();
 	void Release();
 
-	bool IsRunning() const { return _isRunning; };
-
+	bool IsRunning() const;
 private:
 	void InitSDL();
 	void CreateWindowAndRenderer();
@@ -23,6 +25,5 @@ private:
 	bool _isRunning;
 	SDL_Window* _window;
 	SDL_Renderer* _renderer;
-	std::vector<GameObject> _gameObjects;
 
 };

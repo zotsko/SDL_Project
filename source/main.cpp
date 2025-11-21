@@ -1,31 +1,44 @@
+#include "Game.h"
+#include "RenderManager.h"
+#include "TimeManager.h"
+
 #include <SDL3/SDL.h>
 #include <exception>
-#include "Game.h"
+#include <iostream>
 
-
-int main() 
+int main()
 {
 	Game game;
-	try {
+
+
+	try
+	{
 		game.Init();
 	}
-	catch (std::exception& e) {
+	catch (std::exception& e)
+	{
+		std::cout << "Error: " << e.what();
 		game.Release();
 		return -1;
 	}
 
 	while (game.IsRunning())
 	{
-		// Gestión del Input
-		game.HandleEvents();
+		TIME.Update();
+		//std::cout << TIME.GetDeltaTime() << std::endl;
+		if (TIME.ShouldUpdateGame()) {
+			// frame
+			game.HandleEvents();
+			game.Update();
+			game.Render();
 
-		// UPDATE - Actualizar lógica (objetos, etc.)
-		game.Update();
-
-		// Renderizar
-		game.Render();
+			// frame time reset
+			TIME.ResetDeltaTime();
+		}
+		
 	}
+
 	game.Release();
+
 	return 0;
 }
-

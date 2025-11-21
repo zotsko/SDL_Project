@@ -1,50 +1,59 @@
 #include "Game.h"
+#include "ImageObject.h"
+#include "RenderManager.h"
+#include "InputManager.h"
+#include "SceneManager.h"
+#include "Gameplay.h"
+
+#include <cassert>
+
+Game::~Game()
+{
+}
 
 void Game::Init()
 {
-	InitSDL();
+	RM->Init();
+	//SDL_SetRenderDrawColor(RM->GetRenderer(), 254, 0, 0, 0xFF);
 
-	CreateWindowAndRenderer();
+	RM->LoadTexture("resources/cigarro.png");
 
 	SDL_SetRenderDrawColor(_renderer, 225, 0, 0, 0xFF); // 0xFF = 255 en hexadecimal
 
-	_isRunning = true;
-	
-	_gameObjects.push_back(GameObject("resources/cigarro.png", _renderer));
-}
+	// Cargar todas las escenas
+	assert(SM.AddScene("Gameplay", new Gameplay()));
 
+	assert(SM.InitFirstScene("Gameplay"));
+
+	_isRunning = true;
+}
 void Game::HandleEvents()
 {
-	SDL_Event event;
-
-	while (SDL_PollEvent(&event))
-		if (event.type == SDL_EVENT_QUIT)
-			_isRunning = false;
+	_isRunning = !IM->Listen();
 }
-
 void Game::Update()
 {
-	for (GameObject go : _gameObjects)
-		go.Render(_renderer);
+	SM.UpdateCurrentScene();
 }
-
 void Game::Render()
 {
-	SDL_RenderClear(_renderer);
+	RM->ClearScreen();
+	
+	SM.GetCurrentScene()->Render();
 
-	for (GameObject go : _gameObjects)
-		go.Render(_renderer);
-
-	SDL_RenderPresent(_renderer);
+	RM->RenderScreen();
 }
 
 void Game::Release()
 {
-	SDL_DestroyRenderer(_renderer);
-	SDL_DestroyWindow(_window);
+	RM->Release();
 	SDL_Quit();
 }
 
+bool Game::IsRunning() const
+{
+	return _isRunning;
+}
 
 void Game::InitSDL()
 {
@@ -52,8 +61,14 @@ void Game::InitSDL()
 		throw SDL_GetError();
 }
 
-void Game::CreateWindowAndRenderer()
+/*void Game::CreateWindowAndRenderer()
 {
-	if (!SDL_CreateWindowAndRenderer("Test", 512, 512, SDL_WINDOW_RESIZABLE, &_window, &_renderer))
+	if (!SDL_CreateWindowAndRenderer(
+		"Test",
+		RM->WINDOW_WIDTH, RM->WINDOW_HEIGHT,
+		SDL_WINDOW_RESIZABLE,
+		&_window,
+		&_renderer
+	))
 		throw SDL_GetError();
-}
+}*/
